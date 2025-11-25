@@ -6,7 +6,7 @@ buildscript {
 
     repositories repos
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.1'
+        classpath 'com.android.tools.build:gradle:8.13.1'
     }
 }
 
@@ -18,15 +18,68 @@ ext {
     androidxTestUiAutomatorVersion = '2.2.0'
     androidxTestExtJunitVersion = '1.1.4'
     mockitoVersion = '4.9.0'
-    byteBuddyVersion = '1.14.5'
+    byteBuddyVersion = '1.18.1'
 
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
+def buildProjects() {
+    subprojects.findAll { new File(it.projectDir, 'build.gradle').file }
+}
+
+def androidApplicationProjects() {
+    subprojects.findAll { it.name.endsWith("app")}
+}
+
+def androidLibraryProjects() {
+    buildProjects().findAll {  !androidApplicationProjects().contains(it)}
+}
+
+configure(androidLibraryProjects()) {
+    apply plugin: 'com.android.library'
+}
+
+configure(androidApplicationProjects()) {
+    apply plugin: 'com.android.application'
+}
+
+
+configure(buildProjects()) {
+    repositories repos
+
+    android {
+
+        compileSdkVersion 33
+
+        defaultConfig {
+            minSdkVersion 19
+            targetSdkVersion 33
+        }
+
+        testOptions {
+            unitTests {
+                returnDefaultValues = true
+            }
+        }
+
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            }
+        }
+
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_11
+            targetCompatibility JavaVersion.VERSION_11
+        }
+
+        lintOptions {
+            abortOnError false
+        }
     }
+
+
 }
 
 task clean(type: Delete) {

@@ -1,34 +1,6 @@
 
-apply plugin: 'com.android.library'
-
 android {
-    compileSdkVersion 33
-
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 33
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
-
-    lintOptions {
-        abortOnError false
-    }
-
-    compileOptions {
-        // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+    namespace "no.entur.abt.client.sdk.test"
 }
 dependencies {
     api "junit:junit:${junitVersion}"
