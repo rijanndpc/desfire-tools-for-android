@@ -10,7 +10,7 @@ import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 public class DESFireAdapter {
 
 	private static final String TAG = DESFireAdapter.class.getName();
-	
+
     /* Status codes */
     public static final byte OPERATION_OK = (byte)0x00;
     public static final byte ADDITIONAL_FRAME = (byte)0xAF;
@@ -26,42 +26,43 @@ public class DESFireAdapter {
 		this.isoDep = isoDep;
 		this.print = print;
 	}
-	
+
 	public IsoDepWrapper getIsoDep() {
 		return isoDep;
 	}
-	
+
 	/**
-	 * Send compressed command message 
-	 * 
+	 * Send compressed command message
+	 *
 	 * @param adpu
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 
 	public byte[] transmitChain(byte[] adpu) throws Exception {
 		return receieveResponseChain(sendRequestChain(adpu));
     }
-	
+
 	public byte[] receieveResponseChain(byte[] response) throws IOException, Exception {
-		
+
 		if(response[response.length - 2] == STATUS_OK && response[response.length - 1] == OPERATION_OK) {
 			return response;
 		}
-		
+
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         do {
             if (response[response.length - 2] != STATUS_OK) {
                 throw new Exception("Invalid response " + String.format("%02x", response[response.length - 2] & 0xff));
             }
-            
-            output.write(response, 0, response.length - 2);
 
             byte status = response[response.length - 1];
             if (status == OPERATION_OK) {
+                output.write(response, 0, response.length);
             	return output.toByteArray();
-            } else if (status != ADDITIONAL_FRAME) {
+            } else if (status == ADDITIONAL_FRAME) {
+                output.write(response, 0, response.length - 2);
+            } else {
                 throw new Exception("PICC error code while reading response: " + Integer.toHexString(status & 0xFF));
         	}
 
@@ -70,16 +71,16 @@ public class DESFireAdapter {
 	}
 
 	public byte[] sendRequestChain(byte[] apdu) throws Exception {
-		
+
 		if(apdu.length <= MAX_CAPDU_SIZE) {
 			return transmit(apdu);
 		}
         int offset = 5; // data area of apdu
-        
+
         byte nextCommand =  apdu[1];
         while(true) {
         	int nextLength = Math.min(MAX_CAPDU_SIZE - 1, apdu.length - offset);
-        	
+
             byte[] request = wrapMessage(nextCommand, apdu, offset, nextLength);
 
             byte[] response = transmit(request);
@@ -101,13 +102,13 @@ public class DESFireAdapter {
         	}
         	nextCommand = ADDITIONAL_FRAME;
         }
-		
+
 	}
-	
+
     public static byte[] wrapMessage (byte command) throws Exception {
     	return new byte[]{(byte) 0x90, command, 0x00, 0x00, 0x00};
     }
-	
+
     public static byte[] wrapMessage (byte command, byte[] parameters, int offset, int length) throws Exception {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
@@ -124,22 +125,22 @@ public class DESFireAdapter {
 
         return stream.toByteArray();
     }
-    
+
 	/**
 	 * Send a command to the card and return the response.
-	 * 
+	 *
 	 * @param command	the command
 	 * @return			the PICC response
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public byte[] transmit(byte[] command) throws IOException {
-		
+
 		if(print) {
 			Log.d(TAG, "===> " + getHexString(command, true) + " (" + command.length + ")");
 		}
-		
+
 		byte[] response = isoDep.transceive(command);
-		
+
 		if(print) {
 			Log.d(TAG, "<=== " + getHexString(response, true) + " (" + command.length + ")");
 		}
