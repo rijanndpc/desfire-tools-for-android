@@ -2,12 +2,12 @@ package com.github.skjolber.desfire.libfreefare;
 
 import org.junit.Assert;
 
-import static com.github.skjolber.desfire.libfreefare.MifareDesfireKey.*;
+import static com.github.skjolber.desfire.libfreefare.MifareDesfireKeyFactory.*;
 import static com.github.skjolber.desfire.libfreefare.MifareDesfireCrypto.*;
 
 
 public class TestMifareDesfireAES {
-	
+
 	private static final String TAG = TestMifareDesfireAES.class.getName();
 
 	private byte[] key_data = new byte[]{
@@ -20,7 +20,7 @@ public class TestMifareDesfireAES {
 	/**
 	 * Test AES encryption. Note block size 16.
 	 */
-	
+
     public void test_mifare_desfire_aes_generate_subkeys() throws Throwable {
 	    byte[] sk1 = {
     	        (byte)0xfb, (byte)0xee, (byte)0xd6, (byte)0x18,
@@ -35,27 +35,27 @@ public class TestMifareDesfireAES {
     	        (byte)0xf9, (byte)0x0b, (byte)0xc1, (byte)0x1e,
     	        (byte)0xe4, (byte)0x6d, (byte)0x51, (byte)0x3b
     	    };
-	    
+
 
 	    MifareDESFireKey key = mifare_desfire_aes_key_new (key_data);
 	    assertEquals(key_data, key.getData());
-	    
+
 	    cmac_generate_subkeys (key);
 
 	    assertEquals(sk1, key.getCmac_sk1());
 	    assertEquals (sk2, key.getCmac_sk2());
 	}
-    
+
     public static final void assertEquals(byte[] expected, byte[] actual) {
     	for(int i = 0; i < expected.length; i++) {
 	    	Assert.assertEquals("At " + i + "\n" + toHexString(expected) + "\n" + toHexString(actual), expected[i], actual[i]);
 	    }
     }
-    
+
 
     /**
      * Converts the byte array to HEX string.
-     * 
+     *
      * @param buffer
      *            the buffer.
      * @return the HEX string.
@@ -66,7 +66,7 @@ public class TestMifareDesfireAES {
 			sb.append(String.format("%02x", b&0xff));
 		return sb.toString();
     }
-    
+
 
 	public void test_mifare_desfire_aes_cmac_empty() throws Exception {
 	    MifareDESFireKey key = mifare_desfire_aes_key_new (key_data);
@@ -80,7 +80,7 @@ public class TestMifareDesfireAES {
     	        (byte)0x7f, (byte)0xa3, (byte)0x7d, (byte)0x12,
     	        (byte)0x9b, (byte)0x75, (byte)0x67, (byte)0x46
     	    };
-    	
+
 
 	    byte[] my_cmac = new byte[16];
 	    cmac (key, ivect, null, 0, my_cmac);
@@ -113,7 +113,7 @@ public class TestMifareDesfireAES {
 
 	    assertEquals (expected_cmac, my_cmac );
 	}
-	
+
 	public void test_mifare_desfire_aes_cmac_320() throws Exception {
 	    MifareDESFireKey key = mifare_desfire_aes_key_new (key_data);
 	    cmac_generate_subkeys (key);
@@ -139,15 +139,15 @@ public class TestMifareDesfireAES {
     	        (byte)0x30, (byte)0xca, (byte)0x32, (byte)0x61,
     	        (byte)0x14, (byte)0x97, (byte)0xc8, (byte)0x27
     	    };
-    	
-    	
+
+
 	    byte[] my_cmac = new byte[16];
 	    cmac (key, ivect, message, message.length, my_cmac);
 
 	    assertEquals (expected_cmac, my_cmac);
 	}
 
-	public void test_mifare_desfire_aes_cmac_512() throws Exception 
+	public void test_mifare_desfire_aes_cmac_512() throws Exception
 	{
 	    MifareDESFireKey key = mifare_desfire_aes_key_new (key_data);
 	    cmac_generate_subkeys (key);
@@ -185,6 +185,6 @@ public class TestMifareDesfireAES {
 
 	    assertEquals(expected_cmac, my_cmac);
 	}
-	
-	
+
+
 }

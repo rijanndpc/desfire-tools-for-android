@@ -24,9 +24,9 @@ import com.github.skjolber.desfire.ev1.model.key.DesfireKeyType;
 import android.util.Log;
 
 public class MifareDesfire {
-	
+
 	private static final String TAG = MifareDesfire.class.getName();
-	
+
 	public static final int MAX_APPLICATION_COUNT = 28;
 	public static final int MAX_FILE_COUNT = 32;
 
@@ -42,15 +42,15 @@ public class MifareDesfire {
 	static bool cached_file_settings_current[MAX_FILE_COUNT];
 */
 	public static final int NOT_YET_AUTHENTICATED = 255;
-	
+
 	protected static DesfireFile[] cached_file_settings = new DesfireFile[MAX_FILE_COUNT];
 
 	public static void ASSERT_AUTHENTICATED(MifareTag tag) {
 		if (C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() == NOT_YET_AUTHENTICATED) {
 		    throw new IllegalArgumentException();
-		} 
+		}
 	}
-	
+
 	/*
 	 * XXX: cs < 0 is a CommunicationSettings detection error. Other values are
 	 * user errors. We may need to distinguish them.
@@ -58,9 +58,9 @@ public class MifareDesfire {
 	public static void ASSERT_CS(int cs) {
 		if (cs < 0) {
 		    throw new IllegalArgumentException(Integer.toString(cs));
-		} else if (cs == 0x02) { 
+		} else if (cs == 0x02) {
 		    throw new IllegalArgumentException(Integer.toString(cs));
-		} else if (cs > 0x03) { 
+		} else if (cs > 0x03) {
 		     throw new IllegalArgumentException(Integer.toString(cs));
 		}
 	}
@@ -70,7 +70,7 @@ public class MifareDesfire {
 		    throw new IllegalArgumentException();
 		}
     }
-	
+
 	/*
 	 * Convenience macros.
 	 */
@@ -98,7 +98,7 @@ public class MifareDesfire {
 	   CAPDUs will be 5 bytes longer (CLA+P1+P2+Lc+Le)
 	   RAPDUs will be 1 byte longer  (SW1 SW2 instead of 1 status byte)
 	 */
-	
+
 	// SINGLE COMMAND
 	public static final byte[] DESFIRE_TRANSCEIVE_SINGLE(MifareTag tag, ByteBuffer msg, byte expected) throws Exception {
 		return DESFIRE_TRANSCEIVE_SINGLE(tag, msg, msg.position(), expected);
@@ -124,7 +124,7 @@ public class MifareDesfire {
 	public static final byte[] DESFIRE_TRANSCEIVE2(MifareTag tag, byte[] buffer) throws Exception {
 		return DESFIRE_TRANSCEIVE2(tag, buffer, buffer.length);
 	}
-	
+
 	/*
 	public static final byte[] DESFIRE_TRANSCEIVE(MifareTag tag, ByteBuffer msg) throws Exception {
 		return DESFIRE_TRANSCEIVE(tag, msg, msg.position());
@@ -138,7 +138,7 @@ public class MifareDesfire {
 	/*
 	public static final void DESFIRE_TRANSCEIVE2(MifareTag tag, msg, msg_len, res) {
 	    do { \
-		static uint8_t __msg[MAX_CAPDU_SIZE + 5] = { 0x90, 0x00, 0x00, 0x00, 0x00, /* ..., */ /* 0x00 }; 
+		static uint8_t __msg[MAX_CAPDU_SIZE + 5] = { 0x90, 0x00, 0x00, 0x00, 0x00, /* ..., */ /* 0x00 };
 		/*                                       CLA   INS   P1    P2    Lc    PAYLOAD    LE
 		/*
 		static uint8_t __res[MAX_RAPDU_SIZE + 1]; \
@@ -179,7 +179,7 @@ public class MifareDesfire {
 
 	public static int madame_soleil_get_read_communication_settings (MifareTag tag, byte file_no) throws Exception
 	{
-		
+
 	    DesfireFile settings = mifare_desfire_get_file_settings (tag, file_no);
 	    if(settings == null) {
 	    	throw new IllegalArgumentException();
@@ -187,16 +187,16 @@ public class MifareDesfire {
 
 	    if (C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() == settings.getReadAccessKey() || C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() == settings.getReadWriteAccessKey()) {
 	    	return settings.getCommunicationSettings().getValue();
-	    } 
+	    }
 		return 0;
 	}
-	
+
 	public static int madame_soleil_get_write_communication_settings (MifareTag tag, byte file_no) throws Exception {
 	    DesfireFile settings = mifare_desfire_get_file_settings (tag, file_no);
 
 	    if (C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() == settings.getWriteAccessKey() || C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() == settings.getReadWriteAccessKey()) {
 	    	return settings.getCommunicationSettings().getValue();
-	    } 
+	    }
 	    Log.w(TAG, "No write access file " + file_no + " (" +  C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() + " != " + settings.getWriteAccessKey() + " / " + settings.getReadWriteAccessKey() + ")");
 		return 0;
 	}
@@ -246,18 +246,18 @@ public class MifareDesfire {
 	    if (nfc_initiator_select_passive_target (tag->device, modulation, tag->info.abtUid, tag->info.szUidLen, &pnti) >= 0) {
 	    */
 		tag.setActive(1);
-		
+
 		C.MIFARE_DESFIRE (tag).setSessionKey(null);
 		C.MIFARE_DESFIRE (tag).setLastPICCError(DefaultIsoDepAdapter.OPERATION_OK);
 		C.MIFARE_DESFIRE (tag).setLastPCDError(DefaultIsoDepAdapter.OPERATION_OK);
 		C.MIFARE_DESFIRE (tag).setAuthenticatedKeyNumber(NOT_YET_AUTHENTICATED);
 		C.MIFARE_DESFIRE (tag).setSelectedApplication(0);
-		
+
 	    return 0;
 	}
 
 	private static void ASSERT_MIFARE_DESFIRE(MifareTag tag) {
-		
+
 	}
 
 	/*
@@ -271,7 +271,7 @@ public class MifareDesfire {
 	    C.MIFARE_DESFIRE(tag).setSessionKey(null);
 
 	    tag.setActive(0);
-	    
+
 	    return 0;
 	}
 
@@ -289,10 +289,10 @@ public class MifareDesfire {
 	    C.MIFARE_DESFIRE (tag).setAuthenticationScheme((AUTHENTICATE_LEGACY == cmd) ? AuthenticationScheme.AS_LEGACY : AuthenticationScheme.AS_NEW);
 
 	    ByteBuffer cmd1 = C.BUFFER_INIT (2);
-	    
+
 	    C.BUFFER_APPEND (cmd1, cmd);
 	    C.BUFFER_APPEND (cmd1, key_no);
-	    
+
 	    byte[] res = DESFIRE_TRANSCEIVE_SINGLE(tag, cmd1, DefaultIsoDepAdapter.ADDITIONAL_FRAME);
 
 	    int key_length = res.length;
@@ -302,7 +302,7 @@ public class MifareDesfire {
 
 	    byte[] PICC_RndB = new byte[16];
 	    C.memcpy (PICC_RndB, PICC_E_RndB, key_length);
-	    
+
 	    MifareDesfireCrypto.mifare_cypher_blocks_chained (tag, key, C.MIFARE_DESFIRE (tag).getInitializationVector(), 0, PICC_RndB, 0, key_length, MifareCryptoDirection.MCD_RECEIVE, MifareCryptoOperation.MCO_DECYPHER);
 
 	    byte[] PCD_RndA = new byte[key_length];
@@ -346,7 +346,7 @@ public class MifareDesfire {
 	    }
 
 	    C.MIFARE_DESFIRE (tag).setAuthenticatedKeyNumber(key_no);
-	    C.MIFARE_DESFIRE (tag).setSessionKey(MifareDesfireKey.mifare_desfire_session_key_new (PCD_RndA, PICC_RndB, key));
+	    C.MIFARE_DESFIRE (tag).setSessionKey(MifareDesfireKeyFactory.mifare_desfire_session_key_new (PCD_RndA, PICC_RndB, key));
 	    C.memset (C.MIFARE_DESFIRE (tag).getInitializationVector(), C.zero, MifareDesfireCrypto.MAX_CRYPTO_BLOCK_SIZE);
 
 	    switch (C.MIFARE_DESFIRE (tag).getAuthenticationScheme()) {
@@ -407,7 +407,7 @@ public class MifareDesfire {
 	    ASSERT_AUTHENTICATED (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (9);
-	    
+
 	    //BUFFER_INIT (res, 1 + CMAC_LENGTH);
 
 	    C.BUFFER_APPEND (cmd, 0x54);
@@ -416,10 +416,10 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, 2, 1, MifareDesfireCrypto.MDCM_ENCIPHERED | MifareDesfireCrypto.ENC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, buffer.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY | MifareDesfireCrypto.MAC_COMMAND | MifareDesfireCrypto.MAC_VERIFY);
 
 	    if (p == null) {
@@ -428,7 +428,7 @@ public class MifareDesfire {
 
 	    return 0;
 	}
-	
+
 	public static DesfireApplicationKeySettings mifare_desfire_get_key_settings (MifareTag tag) throws Exception
 	{
 	    ASSERT_ACTIVE (tag);
@@ -449,13 +449,13 @@ public class MifareDesfire {
 	    if(p == null) {
 	    	throw new IllegalArgumentException();
 	    }
-	    
+
 	    byte[] settings = new byte[2];
 	    System.arraycopy(p, 0, settings, 0, settings.length);
 
 	    return new DesfireApplicationKeySettings(settings);
 	}
-	
+
 	public static int
 	mifare_desfire_change_key (MifareTag tag, byte key_no, MifareDESFireKey new_key, MifareDESFireKey old_key) throws Exception
 	{
@@ -464,13 +464,13 @@ public class MifareDesfire {
 	    ASSERT_AUTHENTICATED (tag);
 
 	    byte[] cmd = new byte[52];
-	    
+
 	    //ByteBuffer cmd = BUFFER_INIT (52);
-	    
+
 	    // BUFFER_INIT (res, 1 + CMAC_LENGTH);
 
 	    key_no &= 0x0F;
-	    
+
 	     // Because new crypto methods can be setup only at application creation,
 	     // changing the card master key to one of them require a key_no tweak.
 	     //
@@ -489,10 +489,10 @@ public class MifareDesfire {
 	    }
 
 	    int count = 0;
-	    
+
 	    cmd[count++] = (byte) 0xC4;
 	    cmd[count++] = key_no;
-	    
+
 	    int new_key_length;
 	    switch (new_key.getType()) {
 	    case DES:
@@ -510,7 +510,7 @@ public class MifareDesfire {
 
 	    System.arraycopy(new_key.getData(), 0, cmd, count, new_key_length);
 	    count += new_key_length;
-	    
+
 	    //cmd.put(new_key.getData(), 0, new_key_length)
 	    //memcpy (cmd, 2, new_key.getData(), new_key_length);
 
@@ -528,7 +528,7 @@ public class MifareDesfire {
 	    if (new_key.getType() == DesfireKeyType.AES) {
 	    	cmd[count++] = new_key.getAESVersion();
 	    }
-	    
+
 	    if ((C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo() & 0x0f) != (key_no & 0x0f)) {
 		switch (C.MIFARE_DESFIRE (tag).getAuthenticationScheme()) {
 		case AS_LEGACY:
@@ -561,18 +561,18 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, 0, count, 2, MifareDesfireCrypto.MDCM_ENCIPHERED | MifareDesfireCrypto.ENC_COMMAND | MifareDesfireCrypto.NO_CRC);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
-	    
+
 	    // empty response really
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length + 1, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
+
 	     // If we changed the current authenticated key, we are not authenticated
 	     // anymore.
 	    if (key_no == C.MIFARE_DESFIRE (tag).getAuthenticatedKeyNo()) {
@@ -583,27 +583,27 @@ public class MifareDesfire {
 	}
 
 	 // Retrieve version information for a given key.
-	
+
 	public static byte mifare_desfire_get_key_version (MifareTag tag, byte key_no) throws Exception {
 		byte[] version = new byte[1];
-		
+
 		int result = mifare_desfire_get_key_version(tag, key_no, version);
-		
+
 		if(result == 0) {
 			return version[0];
 		} else {
 			throw new IllegalArgumentException();
 		}
 	}
-	
-	
+
+
 	public static int mifare_desfire_get_key_version (MifareTag tag, byte key_no, byte[] version) throws Exception
 	{
 	    ASSERT_ACTIVE (tag);
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd1 = C.BUFFER_INIT (2);
-	    
+
 	    C.BUFFER_APPEND (cmd1, 0x64);
 	    C.BUFFER_APPEND (cmd1, key_no);
 
@@ -613,7 +613,7 @@ public class MifareDesfire {
 
 	    byte[] buffer = new byte[2 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length + 1, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY | MifareDesfireCrypto.MAC_VERIFY);
 
 	    if (p == null) {
@@ -648,20 +648,20 @@ public class MifareDesfire {
     			(byte) ((iso_file_id >>> 8) & 0xFF),
 	    		(byte) ((iso_file_id >>> 0) & 0xFF)
 	    	};
-	    	
+
 	    	C.BUFFER_APPEND_LE (cmd, bytes, 2, 2);
 	    }
 	    if (iso_file_name_len != 0) {
 	    	C.BUFFER_APPEND_BYTES (cmd, iso_file_name, iso_file_name_len);
 	    }
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY | MifareDesfireCrypto.MAC_VERIFY);
 
 	    if (p == null) {
@@ -670,7 +670,7 @@ public class MifareDesfire {
 
 	    return 0;
 	}
-	
+
 	public static int
 	mifare_desfire_create_application (MifareTag tag, DesfireApplicationId aid, byte settings, byte key_no) throws Exception
 	{
@@ -694,7 +694,7 @@ public class MifareDesfire {
 	{
 	    return create_application (tag, aid, settings, (byte)(MifareDesfireCrypto.APPLICATION_CRYPTO_3K3DES | key_no), 1, want_iso_file_identifiers, iso_file_id, iso_file_name, iso_file_name_len);
 	}
-	
+
 	public static int
 	mifare_desfire_create_application_aes (MifareTag tag, DesfireApplicationId aid, byte settings, byte key_no) throws Exception
 	{
@@ -706,7 +706,7 @@ public class MifareDesfire {
 	{
 	    return create_application (tag, aid, settings, (byte)(MifareDesfireCrypto.APPLICATION_CRYPTO_AES | key_no), 1, want_iso_file_identifiers, iso_file_id, iso_file_name, iso_file_name_len);
 	}
-	
+
 	public static int
 	mifare_desfire_delete_application (MifareTag tag, DesfireApplicationId aid) throws Exception
 	{
@@ -721,15 +721,15 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
-	    
+
 	    // If we have deleted the current application, we are not authenticated
 	    // anymore.
-	    
+
 	    if (C.MIFARE_DESFIRE (tag).getSelectedApplication() == aid.getIdInt()) {
 			C.MIFARE_DESFIRE (tag).setSessionKey(null);
 			C.MIFARE_DESFIRE (tag).setSelectedApplication(0x000000);
@@ -737,14 +737,14 @@ public class MifareDesfire {
 
 	    return 0;
 	}
-	
+
 	public static List<DesfireApplicationId> mifare_desfire_get_application_ids (MifareTag tag) throws Exception
 	{
 	    ASSERT_ACTIVE (tag);
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (1);
-	    
+
 	    C.BUFFER_APPEND (cmd, 0x6A);
 
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
@@ -765,7 +765,7 @@ public class MifareDesfire {
 	    }
 
 	    int count = (res.length)/3; // discard last byte
-	    
+
 	    List<DesfireApplicationId> aids = new ArrayList<DesfireApplicationId>();
         for (int app = 0; app < count * 3; app += 3) {
             byte[] appId = new byte[]{buffer[app + 2], buffer[app + 1], buffer[app]};
@@ -783,11 +783,11 @@ public class MifareDesfire {
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (1);
-	    
+
 	    C.BUFFER_APPEND (cmd, 0x6D);
 
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
-	    
+
 	    if (p == null) {
 			return null;
 	    }
@@ -807,7 +807,7 @@ public class MifareDesfire {
         */
 
 	    return dfs;
-	
+
 	    /*
 	    *count = 0;
 	    *dfs = NULL;
@@ -818,7 +818,7 @@ public class MifareDesfire {
 	    BUFFER_APPEND (cmd, 0x6D);
 
 	    uint8_t *p = mifare_cryto_preprocess_data (tag, cmd, &__cmd_n, 0, MDCM_PLAIN | CMAC_COMMAND);
-		
+
 	    do {
 		DESFIRE_TRANSCEIVE2 (tag, p, __cmd_n, res);
 
@@ -840,7 +840,7 @@ public class MifareDesfire {
 	    return 0;
 	    */
 	}
-	
+
 	/*
 	 * Select the application specified by aid for further operation.  If aid is
 	 * NULL, the master application is selected (equivalent to aid = 0x00000).
@@ -877,7 +877,7 @@ public class MifareDesfire {
 	    for (int n = 0; n < MAX_FILE_COUNT; n++) {
 	    	cached_file_settings[n] = null;
 	    }
-	    
+
 	    //free (MIFARE_DESFIRE (tag)->session_key);
 	    C.MIFARE_DESFIRE (tag).setSessionKey(null);;
 
@@ -892,7 +892,7 @@ public class MifareDesfire {
 	    ASSERT_ACTIVE (tag);
 	    ASSERT_MIFARE_DESFIRE (tag);
 	    ASSERT_AUTHENTICATED (tag);
-	    
+
 	    ByteBuffer cmd = C.BUFFER_INIT (1);
 
 	    //BUFFER_INIT (cmd, 1 + CMAC_LENGTH);
@@ -903,7 +903,7 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p, p.length);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
 
@@ -922,7 +922,7 @@ public class MifareDesfire {
 	/*
 	 * Retrieve version information form the PICC.
 	 */
-	
+
 	public static VersionInfo
 	mifare_desfire_get_version (MifareTag tag) throws Exception
 	{
@@ -939,8 +939,8 @@ public class MifareDesfire {
 
 	    if (p == null) {
 			return null;
-	    }	    
-	    
+	    }
+
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
 	    C.memcpy (buffer, res, 7 + 7 + 14);
 
@@ -956,17 +956,17 @@ public class MifareDesfire {
 	    //memcpy (&(version_info->uid), res, 14);
 	    memcpy (buffer, 14, res, res.length);
 		*/
-	    
+
 	    VersionInfo version_info = new VersionInfo();
 	    version_info.read(buffer);
-	    
+
 	    int sn = 28 + CMAC_LENGTH + 1;
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, sn, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 			return null;
 	    }
-	    
+
 	    return version_info;
 	}
 /*
@@ -1006,7 +1006,7 @@ public class MifareDesfire {
 
 	    ByteBuffer cmd = C.BUFFER_INIT (10);
 	    // BUFFER_INIT (res, 1 + CMAC_LENGTH);
-	    
+
 	    C.BUFFER_APPEND (cmd, 0x5C);
 	    C.BUFFER_APPEND (cmd, 0x00);
 	    C.BUFFER_APPEND (cmd, (enable_random_uid ? 0x02 : 0x00) | (disable_format ? 0x01 : 0x00));
@@ -1023,7 +1023,7 @@ public class MifareDesfire {
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
+
 	    return 0;
 	}
 
@@ -1150,11 +1150,11 @@ public class MifareDesfire {
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (1);
-	    
+
 	    /*
 	    BUFFER_INIT (res, 16 + CMAC_LENGTH);
 	    */
-	    
+
 	    C.BUFFER_APPEND (cmd, 0x6F);
 
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
@@ -1173,7 +1173,7 @@ public class MifareDesfire {
 	    int count = res.length;
 
 	    byte[] files = new byte[count];
-	    
+
 	    C.memcpy (files, res, count);
 
 	    return files;
@@ -1186,11 +1186,11 @@ public class MifareDesfire {
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (1);
-	    
+
 	    /*
 	    BUFFER_INIT (res, 16 + CMAC_LENGTH);
 	    */
-	    
+
 	    C.BUFFER_APPEND (cmd, 0x61);
 
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
@@ -1201,13 +1201,13 @@ public class MifareDesfire {
 	    System.arraycopy(res, 0, buffer, 0, res.length);
 
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length + 1, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
-	    
+
 	    int count = res.length - CMAC_LENGTH;
 	    int[] files = new int[count / 2];
 	    for (int i = 0; i < count; i++) {
 	    	files[i] =  (p[2 * i+1] << 8) + (p[2 * i] << 0);
 	    }
-	    
+
 	    return files;
 	}
 
@@ -1220,7 +1220,7 @@ public class MifareDesfire {
 	    if (cached_file_settings[file_no] != null) {
 			return cached_file_settings[file_no];
 	    }
-	    
+
 	    ByteBuffer cmd = C.BUFFER_INIT (2);
 
 	    // BUFFER_INIT (res, 18 + CMAC_LENGTH);
@@ -1239,8 +1239,8 @@ public class MifareDesfire {
 
 	    if (p == null) {
 			return null;
-	    }	    
-	    
+	    }
+
 	    DesfireFile settings = DesfireFile.newInstance(file_no, p);
 
 	    cached_file_settings[file_no] = settings;
@@ -1321,11 +1321,11 @@ public class MifareDesfire {
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes3(file_size), 3, 3);
 
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
-	    
+
 	    // 90 CD 00 00 04 0F 03 54 12 00
 	    // 90 cd 00 00 07 0f 03 54 12 64 00 00 00
 	    // 90 CD 00 00 07 0F 03 54 12 64 00 00 00 (13)
-	    
+
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
 
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
@@ -1335,7 +1335,7 @@ public class MifareDesfire {
 
 	    if (p == null) {
 			return -1;
-	    }	    
+	    }
 
 	    cached_file_settings[file_no] = null;
 
@@ -1373,7 +1373,7 @@ public class MifareDesfire {
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (18 + CMAC_LENGTH);
-	    
+
 	    C.BUFFER_APPEND (cmd, 0xCC);
 	    C.BUFFER_APPEND (cmd, file_no);
 	    C.BUFFER_APPEND (cmd, communication_settings);
@@ -1386,18 +1386,18 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
+
 	    cached_file_settings[file_no] = null;
-	    
+
 	    return 0;
 	}
 
@@ -1412,7 +1412,7 @@ public class MifareDesfire {
 	    C.BUFFER_APPEND (cmd, command);
 	    C.BUFFER_APPEND (cmd, file_no);
 	    if (has_iso_file_id)
-	    	
+
 		C.BUFFER_APPEND_LE (cmd, C.getBytes2(iso_file_id), 2, 2);
 	    C.BUFFER_APPEND (cmd, communication_settings);
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes2(access_rights), 2, 2);
@@ -1422,18 +1422,18 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
+
 	    cached_file_settings[file_no] = null;
-	    
+
 	    return 0;
 	}
 
@@ -1468,30 +1468,30 @@ public class MifareDesfire {
 	    ASSERT_MIFARE_DESFIRE (tag);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (2 + CMAC_LENGTH);
-	    
+
 	    C.BUFFER_APPEND (cmd, 0xDF);
 	    C.BUFFER_APPEND (cmd, file_no);
 
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
-    
+
 	    byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
 
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
 
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length + 1, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 			return -1;
-	    }	    
+	    }
 
 	    return 0;
 	}
 
 	// Data manipulation commands.
 
-	public static byte[] 
+	public static byte[]
 	read_data (MifareTag tag, byte command, byte file_no, int offset, int length, int cs) throws Exception
 	{
 	    ASSERT_ACTIVE (tag);
@@ -1499,7 +1499,7 @@ public class MifareDesfire {
 	    ASSERT_CS (cs);
 
 	    ByteBuffer cmd = C.BUFFER_INIT (8);
-	    
+
 	    // BUFFER_INIT (res, MAX_RAPDU_SIZE);
 
 	    C.BUFFER_APPEND (cmd, command);
@@ -1519,9 +1519,9 @@ public class MifareDesfire {
 	    }
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 8, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 	    cs = ocs;
-	    
+
     	byte[] res = DESFIRE_TRANSCEIVE2 (tag, p);
-    	
+
 	    byte[] buffer = new byte[res.length + 1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
 
@@ -1534,19 +1534,19 @@ public class MifareDesfire {
 	    return p;
 	}
 
-	public static byte[] 
+	public static byte[]
 	mifare_desfire_read_data (MifareTag tag, byte file_no, int offset, int length) throws Exception
 	{
 	    return mifare_desfire_read_data_ex (tag, file_no, offset, length, madame_soleil_get_read_communication_settings (tag, file_no));
 	}
 
-	public static byte[] 
+	public static byte[]
 	mifare_desfire_read_data_ex (MifareTag tag, byte file_no, int offset, int length, int cs) throws Exception
 	{
 	    return read_data (tag, (byte) 0xBD, file_no, offset, length, cs);
 	}
-	
-	public static int 
+
+	public static int
 	write_data (MifareTag tag, byte command, byte file_no, int offset, int length, byte[] data, int cs) throws Exception
 	{
 	    ASSERT_ACTIVE (tag);
@@ -1562,7 +1562,7 @@ public class MifareDesfire {
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes3(offset), 3, 3);
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes3(length), 3, 3);
 	    C.BUFFER_APPEND_BYTES (cmd, data, length);
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 8, cs | MifareDesfireCrypto.MAC_COMMAND | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.ENC_COMMAND); // 1110
 	    // int overhead_size = cmd.position() - length; // (CRC | padding) + headers
 
@@ -1570,7 +1570,7 @@ public class MifareDesfire {
 
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length + 1, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
@@ -1582,7 +1582,7 @@ public class MifareDesfire {
 	    return data.length;
 	}
 
-	public static int 
+	public static int
 	mifare_desfire_write_data (MifareTag tag, byte file_no, int offset, int length, byte[] data) throws Exception
 	{
 	    return mifare_desfire_write_data_ex (tag, file_no, offset, length, data, madame_soleil_get_write_communication_settings (tag, file_no));
@@ -1614,10 +1614,10 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 8, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[9 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, 9, cs | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY | MifareDesfireCrypto.MAC_VERIFY);
 
 	    if (p == null) {
@@ -1645,14 +1645,14 @@ public class MifareDesfire {
 	    C.BUFFER_APPEND (cmd, 0x0C);
 	    C.BUFFER_APPEND (cmd, file_no);
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes4(amount), 4, 4);
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 2, cs | MifareDesfireCrypto.MAC_COMMAND | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.ENC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
@@ -1681,14 +1681,14 @@ public class MifareDesfire {
 	    C.BUFFER_APPEND (cmd, 0xDC);
 	    C.BUFFER_APPEND (cmd, file_no);
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes4(amount), 4, 4);
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 2, cs | MifareDesfireCrypto.MAC_COMMAND | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.ENC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
@@ -1708,7 +1708,7 @@ public class MifareDesfire {
 	public static int
 	mifare_desfire_limited_credit_ex (MifareTag tag, byte file_no, int amount, int cs) throws Exception
 	{
-		
+
 		ASSERT_ACTIVE (tag);
 	    ASSERT_MIFARE_DESFIRE (tag);
 	    ASSERT_CS (cs);
@@ -1718,14 +1718,14 @@ public class MifareDesfire {
 	    C.BUFFER_APPEND (cmd, 0x1C);
 	    C.BUFFER_APPEND (cmd, file_no);
 	    C.BUFFER_APPEND_LE (cmd, C.getBytes4(amount), 4, 4);
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 2, cs | MifareDesfireCrypto.MAC_COMMAND | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.ENC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
@@ -1754,7 +1754,7 @@ public class MifareDesfire {
 	    return mifare_desfire_read_records_ex (tag, file_no, offset, length, madame_soleil_get_read_communication_settings (tag, file_no));
 	}
 
-	public static byte[] 
+	public static byte[]
 	mifare_desfire_read_records_ex (MifareTag tag, byte file_no, int offset, int length, int cs) throws Exception
 	{
 	    return read_data (tag, (byte)0xBB, file_no, offset, length, cs);
@@ -1774,16 +1774,16 @@ public class MifareDesfire {
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
+
 	    cached_file_settings[file_no] = null;
 
 	    return 0;
@@ -1798,20 +1798,20 @@ public class MifareDesfire {
 	    ByteBuffer cmd = C.BUFFER_INIT (1 + CMAC_LENGTH);
 
 	    C.BUFFER_APPEND (cmd, 0xC7);
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
+
 	    return 0;
 	}
 
@@ -1824,21 +1824,21 @@ public class MifareDesfire {
 	    ByteBuffer cmd = C.BUFFER_INIT (1 + CMAC_LENGTH);
 
 	    C.BUFFER_APPEND (cmd, 0xA7);
-	    
+
 	    byte[] p = MifareDesfireCrypto.mifare_cryto_preprocess_data (tag, cmd, cmd.position(), 0, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND);
 
 	    byte[] res = DESFIRE_TRANSCEIVE2(tag, p);
-	    
+
 	    byte[] buffer = new byte[1 + CMAC_LENGTH];
 	    System.arraycopy(res, 0, buffer, 0, res.length);
-	    
+
 	    p = MifareDesfireCrypto.mifare_cryto_postprocess_data (tag, buffer, res.length, MifareDesfireCrypto.MDCM_PLAIN | MifareDesfireCrypto.CMAC_COMMAND | MifareDesfireCrypto.CMAC_VERIFY);
 
 	    if (p == null) {
 	    	return -1;
 	    }
-	    
-	    return 0;		
+
+	    return 0;
 	}
 
 }

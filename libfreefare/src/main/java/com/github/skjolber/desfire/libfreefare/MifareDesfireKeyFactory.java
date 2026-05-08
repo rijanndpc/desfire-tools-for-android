@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.github.skjolber.desfire.ev1.model.key.DesfireKeyType;
 
-public class MifareDesfireKey {
+public class MifareDesfireKeyFactory {
 
-	private static final String TAG = MifareDesfireKey.class.getName();
+	private static final String TAG = MifareDesfireKeyFactory.class.getName();
 
 	public static void update_key_schedules (MifareDESFireKey key) {
 	    Crypt.DES_set_key (key.getData(), 0, key.getKs1());
@@ -31,9 +31,9 @@ public static MifareDESFireKey mifare_desfire_des_key_new_with_version (byte[] v
 	C.memcpy (key.getData(), value, 8);
 	C.memcpy (key.getData(), 8, value, 0, 8);
 	update_key_schedules (key);
-	
+
 	Log.d(TAG, "Key " + C.toHexString(value) + " K1: " + C.toHexString(key.getKs1()) + " K2: " + C.toHexString(key.getKs2()));
-	
+
     return key;
 }
 
@@ -55,7 +55,7 @@ public static MifareDESFireKey mifare_desfire_des_key_new_with_version (byte[] v
 	key.setType(DesfireKeyType.TDES);
 	C.memcpy (key.getData(), value, 16);
 	update_key_schedules (key);
-	
+
     return key;
 }
 
@@ -91,11 +91,11 @@ public static MifareDESFireKey mifare_desfire_aes_key_new_with_version (byte[] v
 
     byte[] copy = new byte[value.length];
     System.arraycopy(value, 0, copy, 0, value.length);
-    
+
 	key.setData(copy);
 	key.setType(DesfireKeyType.AES);
 	key.setAESVersion(version);
-	
+
     return key;
 }
 

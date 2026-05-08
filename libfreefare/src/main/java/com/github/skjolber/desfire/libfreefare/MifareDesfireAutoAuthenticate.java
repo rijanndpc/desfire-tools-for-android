@@ -3,7 +3,7 @@ package com.github.skjolber.desfire.libfreefare;
 import android.util.Log;
 
 public class MifareDesfireAutoAuthenticate {
-	
+
 	private static final String TAG = MifareDesfireAutoAuthenticate.class.getName();
 
 	public static byte[] key_data_null  = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -13,7 +13,7 @@ public class MifareDesfireAutoAuthenticate {
 	public static byte[] key_data_3k3des  = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 	public static final byte key_data_aes_version = 0x42;
-	
+
 	public static void mifare_desfire_auto_authenticate (MifareTag tag, byte key_no) throws Exception
 	{
 	    /* Determine which key is currently the master one */
@@ -29,20 +29,20 @@ public class MifareDesfireAutoAuthenticate {
 
 	    switch (key_version[0]) {
 	    case 0x00:
-		key = MifareDesfireKey.mifare_desfire_des_key_new_with_version (key_data_null);
+		key = MifareDesfireKeyFactory.mifare_desfire_des_key_new_with_version (key_data_null);
 		break;
 	    case 0x42:
-		key = MifareDesfireKey.mifare_desfire_aes_key_new_with_version (key_data_aes, key_data_aes_version);
+		key = MifareDesfireKeyFactory.mifare_desfire_aes_key_new_with_version (key_data_aes, key_data_aes_version);
 		break;
 	    case (byte) 0xAA:
 	    	Log.d(TAG, "Authenticate using DES key");
-		key = MifareDesfireKey.mifare_desfire_des_key_new_with_version (key_data_des);
+		key = MifareDesfireKeyFactory.mifare_desfire_des_key_new_with_version (key_data_des);
 		break;
 	    case (byte) 0xC7:
-		key = MifareDesfireKey.mifare_desfire_3des_key_new_with_version (key_data_3des);
+		key = MifareDesfireKeyFactory.mifare_desfire_3des_key_new_with_version (key_data_3des);
 		break;
 	    case 0x55:
-		key = MifareDesfireKey.mifare_desfire_3k3des_key_new_with_version (key_data_3k3des);
+		key = MifareDesfireKeyFactory.mifare_desfire_3k3des_key_new_with_version (key_data_3k3des);
 		break;
 	    default:
 		throw new IllegalArgumentException("Unknown master key " + Integer.toHexString(key_version[0] & 0xFF));
@@ -65,7 +65,7 @@ public class MifareDesfireAutoAuthenticate {
 		res = MifareDesfire.mifare_desfire_authenticate_aes (tag, key_no, key);
 		break;
 	    }
-	    
+
 	    if(res != 0) {
 	    	throw new IllegalArgumentException("Not authenticated");
 	    }
