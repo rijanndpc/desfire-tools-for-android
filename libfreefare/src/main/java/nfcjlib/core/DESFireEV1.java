@@ -1874,7 +1874,6 @@ public class DESFireEV1 {
 		if (cs == null)
 			return null;
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int responseLength = findResponseLength(settings, offset, length, cmd);
 
 		byte[] apdu = new byte[13];
@@ -1891,7 +1890,7 @@ public class DESFireEV1 {
 		byte[] responseAPDU = adapter.transmitChain(apdu);
 		feedback(apdu, responseAPDU);
 
-		return postprocess(baos.toByteArray(), responseLength, cs);
+		return postprocess(responseAPDU, responseLength, cs);
 	}
 
 	/* Support method for read(). Find length of just the data. Retrieved
